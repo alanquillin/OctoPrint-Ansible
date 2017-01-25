@@ -1,0 +1,29 @@
+---
+- name: Install python-dnf
+  command: dnf install python-dnf -y
+  become: yes
+  become_method: sudo
+  when: ansible_pkg_mgr == 'dnf'
+  tags:
+    - always
+    - global
+
+- name: (Fedora) Install required packages via dnf
+  dnf: name={{item}}
+  with_items: "{{fedora_packages}}"
+  become: yes
+  become_method: sudo
+  when: (ansible_distribution == 'Fedora' and ansible_pkg_mgr == 'dnf')
+  tags:
+    - always
+    - global
+
+- name: (Fedora) Install required packages via yum
+  yum: name={{item}}
+  with_items: "{{fedora_packages}}"
+  become: yes
+  become_method: sudo
+  when: (ansible_distribution == 'Fedora' and ansible_pkg_mgr == 'yum')
+  tags:
+    - always
+    - global

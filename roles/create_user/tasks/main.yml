@@ -1,0 +1,26 @@
+---
+- name: Create new user
+  user: name={{ new_username }}
+        password={{ new_password |password_hash('sha512') }}
+        state=present
+        update_password=on_create
+        shell=/bin/bash
+  become: yes
+  become_method: sudo
+
+- name: Copy sudoer dropin file
+  template: src=sudoers_dropin.j2
+            dest=/etc/sudoers.d/{{ new_username }}
+            owner=root
+            group=root
+            mode="0600"
+  become: yes
+  become_method: sudo
+
+- name: Add public ssh key to new users authorized key list
+  authorized_key: user={{ username }}
+                  key="{{ lookup('file', ssh_pub_key) }}"
+                  state=present
+  become: yes
+  become_user: "{{ new_username }}"
+  when: add_ssh_pub_key |bool

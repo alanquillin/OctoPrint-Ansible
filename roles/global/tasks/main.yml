@@ -1,0 +1,24 @@
+- set_fact:
+    username: "{{ new_username }}"
+  when: new_username is defined and new_username is not none and new_username | trim != ''
+  tags:
+    - always
+
+- set_fact:
+    username: "{{ ansible_ssh_user }}"
+  when: (username is undefined or username is none or username | trim == '') and ansible_ssh_user is defined
+  tags:
+    - always
+
+- set_fact:
+    username: "{{ ansible_user_id }}"
+  when: (username is undefined or username is none or username | trim == '') and ansible_user_id is defined
+  tags:
+    - always
+
+- debug: msg="Using username {{ username }}"
+  tags:
+    - always
+
+- include: redhat.yml
+  when: ansible_os_family == 'RedHat'

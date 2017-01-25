@@ -1,0 +1,38 @@
+---
+- name: Installing required packages for haproxy
+  apt: name={{item}}
+       state=latest
+  with_items:
+    - haproxy
+  become: yes
+  become_method: sudo
+  tags:
+    - haproxy
+
+- name: Copy haproxy.cfg
+  template: src=haproxy.cfg.j2
+            dest=/etc/haproxy/haproxy.cfg
+  become: yes
+  become_method: sudo
+  tags:
+    - haproxy
+
+- name: Update /etc/default/haproxy
+  lineinfile:
+    dest: /etc/default/haproxy
+    state: present
+    regexp: '^#?\s*ENABLED\s*=\s*'
+    line: 'ENABLED=1'
+  become: yes
+  become_method: sudo
+  tags:
+    - haproxy
+
+- name: Enable and start haproxy service
+  service: name=haproxy
+           enabled=yes
+           state=started
+  become: yes
+  become_method: sudo
+  tags:
+    - haproxy

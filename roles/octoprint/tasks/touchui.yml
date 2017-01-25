@@ -1,0 +1,11 @@
+---
+- name: Installing required packages
+  apt: name={{item}}
+       state=latest
+  with_items:
+    - epiphany-browser
+    - xautomation
+  become: yes
+  become_method: sudo
+  tags:
+    - touchui

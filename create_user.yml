@@ -1,0 +1,19 @@
+---
+- hosts: all
+  vars_prompt:
+    - name: "new_username"
+      prompt: "New Username"
+      private: false
+    - name: "new_password"
+      prompt: "New password"
+      private: true
+    - name: "add_ssh_pub_key"
+      prompt: "Add SSH public key?"
+      private: false
+      default: "true"
+    - name: "ssh_pub_key"
+      prompt: "SSH public key location"
+      private: false
+      default: "~/.ssh/id_rsa.pub"
+  roles:
+    - create_user

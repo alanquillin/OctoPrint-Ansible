@@ -1,0 +1,16 @@
+[Unit]
+Description=OctoPrint
+Requires=network.target
+After=network.target
+
+[Service]
+Environment=PORT={{ port }}
+Environment=BASEDIR={{ install_dir }}/.octoprint
+Environment=CONFIGFILE={{ install_dir }}/.octoprint/config.yaml
+User={{ username }}
+Group=OctoPrint
+Nice=-2
+ExecStart={{ virtualenv_dir }}/bin/octoprint serve --basedir ${BASEDIR} --config ${CONFIGFILE} --port ${PORT}
+
+[Install]
+WantedBy=multi-user.target

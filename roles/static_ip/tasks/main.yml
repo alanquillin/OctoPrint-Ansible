@@ -1,0 +1,7 @@
+---
+- name: Set static ip address (replace /etc/dhcpcd.conf)
+  template: src=etc_dhcpcd.conf.j2
+            dest=/etc/dhcpcd.conf
+            backup=yes
+  become: yes
+  become_method: sudo

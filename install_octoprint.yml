@@ -1,0 +1,21 @@
+---
+- hosts: all
+  vars_prompt:
+    - name: "install_dir"
+      prompt: "Install directory"
+      private: false
+      default: "/opt/OctoPrint"
+    - name: "new_hostname"
+      prompt: "Hostname"
+      private: false
+      default: "octoprint.local"
+    - name: "port"
+      prompt: "OctoPrint listening Port"
+      private: false
+      default: 5000
+    - name: "webcam_port"
+      prompt: "Webcam listening Port"
+      private: false
+      default: 8080
+  roles:
+    - octoprint

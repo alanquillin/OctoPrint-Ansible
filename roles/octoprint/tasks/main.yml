@@ -1,0 +1,117 @@
+---
+- set_fact:
+    virtualenv_dir: "{{ install_dir }}/.venv"
+
+- name: Setting new hostname
+  hostname: name={{ new_hostname }}
+  become: yes
+  become_method: sudo
+  tags:
+    - init
+
+- name: Create OctoPrint user group
+  group: name=OctoPrint
+  become: yes
+  become_method: sudo
+
+- name: Add user {{ username }} to OctoPrint group
+  user: name={{ username }}
+        groups=OctoPrint
+        append=yes
+  become: yes
+  become_method: sudo
+
+- name: Installing required packages
+  apt: name={{item}}
+       state=latest
+       update_cache=yes
+  with_items:
+    - python-virtualenv
+    - python-pip
+    - python-dev
+    - avahi-daemon
+  become: yes
+  become_method: sudo
+  tags:
+    - init
+
+- name: Create {{ install_dir }} directory
+  file: path={{ install_dir }}
+        mode=0755
+        state=directory
+        owner={{ username }}
+        group=OctoPrint
+  become: yes
+  become_method: sudo
+  tags:
+    - init
+
+- name: Download OctoPrint source
+  git: repo=https://github.com/foosel/OctoPrint.git
+       dest={{ install_dir }}
+  become: yes
+  become_user: "{{ username }}"
+  tags:
+    - code
+
+- stat: path={{ virtualenv_dir }}/bin/activate
+  register: virtualenv_stats
+  tags:
+    - code
+
+- name: Create virtualenv {{ virtualenv_dir }} (if it does not already exist)
+  command: "{{item}}"
+  with_items:
+    - virtualenv --prompt="(OctoPrint) " {{ virtualenv_dir }}
+  become: yes
+  become_user: "{{ username }}"
+  when: not virtualenv_stats.stat.exists
+  tags:
+    - code
+
+- name: Update pip
+  pip: name=pip
+       state=latest
+       virtualenv={{ virtualenv_dir }}
+  become: yes
+  become_user: "{{ username }}"
+  tags:
+    - code
+
+- name: Install OctoPrint
+  pip: name={{ install_dir }}
+       virtualenv={{ virtualenv_dir }}
+       extra_args="-e "
+  become: yes
+  become_user: "{{ username }}"
+  ignore_errors: yes
+  tags:
+    - code
+
+- name: Install OctoPrint systemd Unit
+  template: src=octoprint.service.j2
+            dest=/etc/systemd/system/octoprint.service
+  become: yes
+  become_method: sudo
+  tags:
+    - service
+
+- name: reload systemd
+  command: systemctl daemon-reload
+  become: yes
+  become_method: sudo
+  tags:
+    - service
+
+- name: Enable and start OctoPrint service
+  service: name=octoprint
+           enabled=yes
+           state=restarted
+  become: yes
+  become_method: sudo
+  tags:
+    - service
+
+- include: haproxy.yml
+- include: touchui.yml
+- include: webcam.yml
