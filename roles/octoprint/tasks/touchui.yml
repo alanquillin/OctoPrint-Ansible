@@ -9,3 +9,37 @@
   become_method: sudo
   tags:
     - touchui
+
+- name: Verify ~/.octoprint exists
+  file: path=~/.optoprint
+        state=directory
+  become: yes
+  become_user: "{{ username }}"
+  tags:
+    - touchui
+
+- name: Copy startTouchUI.sh script
+  template: src=startTouchUI.sh.j2
+             dest=~/.optoprint/startTouchUI.sh
+             mode='u+x,g+x,o+x'
+  become: yes
+  become_user: "{{ username }}"
+  tags:
+    - touchui
+
+- name: Verify ~/.config/lxsession/LXDE-pi/autostart exists
+  file: path=~/.config/lxsession/LXDE-pi/autostart
+        state=touch
+  become: yes
+  become_user: "{{ username }}"
+  tags:
+    - touchui
+
+- name: Add content to ~/.config/lxsession/LXDE-pi/autostart
+  lineinfile: dest="~/.config/lxsession/LXDE-pi/autostart"
+              line="@/home/pi/startTouchUI.sh"
+              state=present
+  become: yes
+  become_user: "{{ username }}"
+  tags:
+    - touchui

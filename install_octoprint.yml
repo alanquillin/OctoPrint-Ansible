@@ -17,5 +17,17 @@
       prompt: "Webcam listening Port"
       private: false
       default: 8080
+    - name: "enable_haproxy"
+      prompt: "Enable remote access on Port 80"
+      private: false
+      default: true
+    - name: "enable_webcam"
+      prompt: "Enable webcam"
+      private: false
+      default: true
+    - name: "enable_touchui"
+      prompt: "Enable touch ui"
+      private: false
+      default: true
   roles:
     - octoprint

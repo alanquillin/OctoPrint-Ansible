@@ -113,5 +113,10 @@
     - service
 
 - include: haproxy.yml
+  when: enable_haproxy | bool
+
 - include: touchui.yml
+  when: enable_touchui | bool
+
 - include: webcam.yml
+  when: enable_webcam | bool
